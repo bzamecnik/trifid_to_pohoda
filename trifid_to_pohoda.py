@@ -123,10 +123,17 @@ def convert_invoice_batch(trifid_dict):
         xmlns:typ="http://www.stormware.cz/schema/version_2/type.xsd"
         id="00001" application="" ico="" version="2.0" note="Import FA">
     </dat:dataPack>""")
-    data_pack_item = pohoda_invoices['dat:dataPack']['dat:dataPackItem'] = []
+    data_pack = pohoda_invoices['dat:dataPack']
+    data_pack_item = data_pack['dat:dataPackItem'] = []
+    ico = None
     for inv in trifid_dict['trifid']['faktura']:
         pohoda_item = trifid_to_pohoda_invoice(inv)
         data_pack_item.append(pohoda_item['dat:dataPackItem'])
+        if ico is None:
+            ico = inv['dokladHlavicka']['dodavatel']['ico']
+    # id of the supplier - in each invoice of Trifid, but a global parameter
+    # in the target XML
+    data_pack['@ico'] = ico
     return pohoda_invoices
 
 def load_xml(path):
